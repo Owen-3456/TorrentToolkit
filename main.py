@@ -183,9 +183,6 @@ class TorrentToolkitGUI:
         # Main content area
         self.create_main_content(main_container)
         
-        # Footer
-        self.create_footer(main_container)
-        
         # Update initial status
         self.update_config_status()
 
@@ -195,27 +192,15 @@ class TorrentToolkitGUI:
         header_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 30))
         header_frame.columnconfigure(0, weight=1)
         
-        # Top row with title and GitHub link
-        top_row = ttk.Frame(header_frame, style='Modern.TFrame')
-        top_row.grid(row=0, column=0, sticky=(tk.W, tk.E))
-        top_row.columnconfigure(0, weight=1)
-        
-        # Title with icon (left side)
-        title_frame = ttk.Frame(top_row, style='Modern.TFrame')
-        title_frame.grid(row=0, column=0, sticky=tk.W)
+        # Title with icon
+        title_frame = ttk.Frame(header_frame, style='Modern.TFrame')
+        title_frame.grid(row=0, column=0)
         
         title_label = ttk.Label(title_frame, text="⚡ TorrentToolkit", style='Title.TLabel')
         title_label.grid(row=0, column=0)
         
-        # GitHub link (right side)
-        github_btn = ttk.Button(top_row, 
-                               text="📁 GitHub", 
-                               command=self.open_github,
-                               style='Secondary.TButton')
-        github_btn.grid(row=0, column=1, sticky=tk.E)
-        
         subtitle_label = ttk.Label(header_frame, 
-                                 text="Modern qBittorrent Management Suite", 
+                                 text="qBittorrent Toolkit", 
                                  style='Subtitle.TLabel')
         subtitle_label.grid(row=1, column=0, pady=(5, 0))
 
@@ -325,7 +310,7 @@ class TorrentToolkitGUI:
                  style='Status.TLabel').grid(row=2, column=0, sticky=tk.W)
 
     def create_progress_section(self, parent):
-        """Create progress bar and status section"""
+        """Create progress bar and status section with GitHub link"""
         progress_frame = ttk.Frame(parent, style='Modern.TFrame')
         progress_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(25, 0))
         progress_frame.columnconfigure(0, weight=1)
@@ -338,18 +323,18 @@ class TorrentToolkitGUI:
         
         # Status label
         self.status_label = ttk.Label(progress_frame, text="Ready", style='Footer.TLabel')
-        self.status_label.grid(row=1, column=0)
-
-    def create_footer(self, parent):
-        """Create footer with app info"""
-        footer_frame = ttk.Frame(parent, style='Modern.TFrame')
-        footer_frame.grid(row=4, column=0, sticky=(tk.W, tk.E), pady=(20, 0))
-        footer_frame.columnconfigure(0, weight=1)
+        self.status_label.grid(row=1, column=0, pady=(0, 15))
         
-        footer_label = ttk.Label(footer_frame, 
-                               text="TorrentToolkit v1.0", 
-                               style='Footer.TLabel')
-        footer_label.grid(row=0, column=0)
+        # GitHub link at bottom
+        github_frame = ttk.Frame(progress_frame, style='Modern.TFrame')
+        github_frame.grid(row=2, column=0, pady=(10, 0))
+        
+        github_link = ttk.Label(github_frame, 
+                               text="🐙 View on GitHub", 
+                               style='Footer.TLabel',
+                               cursor="hand2")
+        github_link.grid(row=0, column=0)
+        github_link.bind("<Button-1>", lambda e: self.open_github())
 
     def update_config_status(self):
         """Update the configuration status display with modern styling"""
@@ -610,11 +595,13 @@ class TorrentToolkitGUI:
         dialog.transient(self.root)
         dialog.grab_set()
 
-        # Center the dialog
+        # Center the dialog on screen
         dialog.update_idletasks()
-        x = (dialog.winfo_screenwidth() // 2) - (dialog.winfo_reqwidth() // 2)
-        y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_reqheight() // 2)
-        dialog.geometry(f"+{x}+{y}")
+        width = 900
+        height = 600
+        x = (dialog.winfo_screenwidth() // 2) - (width // 2)
+        y = (dialog.winfo_screenheight() // 2) - (height // 2)
+        dialog.geometry(f"{width}x{height}+{x}+{y}")
 
         # Main frame with modern styling
         main_frame = ttk.Frame(dialog, style='Modern.TFrame', padding="25")
