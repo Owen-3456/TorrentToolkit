@@ -17,3 +17,9 @@ env/
 .vscode/
 *.swp
 *.swo
+
+# report
+*.pdf
+*.docx
+*.xlsx
+*.html
