@@ -26,15 +26,132 @@ class TorrentToolkitGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("TorrentToolkit - qBittorrent Management")
-        self.root.geometry("500x400")
+        self.root.geometry("1100x800")
         self.root.resizable(True, True)
-
-        # Configure style
-        style = ttk.Style()
-        style.theme_use("clam")
-
-        self.create_widgets()
+        self.root.configure(bg='#2b2b2b')
+        
+        # Set minimum size
+        self.root.minsize(900, 700)
+        
+        # Try to set a nice window icon (optional, will fail gracefully if not found)
+        try:
+            # You can add an icon file to your project and uncomment this
+            # self.root.iconbitmap('icon.ico')
+            pass
+        except:
+            pass
+        
+        # Configure modern dark theme
+        self.setup_modern_style()
+        
+        self.create_modern_widgets()
         self.center_window()
+
+    def setup_modern_style(self):
+        """Configure modern dark theme styling"""
+        style = ttk.Style()
+        
+        # Configure the theme
+        style.theme_use('clam')
+        
+        # Define color palette
+        self.colors = {
+            'primary': '#0d7377',
+            'primary_light': '#14a085',
+            'secondary': '#323232',
+            'background': '#2b2b2b',
+            'surface': '#3c3c3c',
+            'surface_light': '#4a4a4a',
+            'text': '#ffffff',
+            'text_secondary': '#b0b0b0',
+            'accent': '#fa7268',
+            'success': '#4caf50',
+            'warning': '#ff9800',
+            'error': '#f44336'
+        }
+        
+        # Configure styles
+        style.configure('Modern.TFrame', 
+                       background=self.colors['background'])
+        
+        style.configure('Card.TFrame', 
+                       background=self.colors['surface'],
+                       relief='flat',
+                       borderwidth=1)
+        
+        style.configure('Title.TLabel',
+                       background=self.colors['background'],
+                       foreground=self.colors['text'],
+                       font=('Segoe UI', 28, 'bold'))
+        
+        style.configure('Subtitle.TLabel',
+                       background=self.colors['background'],
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 13))
+        
+        style.configure('Heading.TLabel',
+                       background=self.colors['surface'],
+                       foreground=self.colors['text'],
+                       font=('Segoe UI', 14, 'bold'))
+        
+        style.configure('Status.TLabel',
+                       background=self.colors['surface'],
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 11))
+        
+        style.configure('Footer.TLabel',
+                       background=self.colors['background'],
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 10))
+        
+        # Modern button styles
+        style.configure('Primary.TButton',
+                       background=self.colors['primary'],
+                       foreground='white',
+                       font=('Segoe UI', 12, 'bold'),
+                       borderwidth=0,
+                       focuscolor='none',
+                       padding=(25, 15))
+        
+        style.map('Primary.TButton',
+                 background=[('active', self.colors['primary_light']),
+                           ('pressed', '#0a5d61')])
+        
+        style.configure('Secondary.TButton',
+                       background=self.colors['surface_light'],
+                       foreground=self.colors['text'],
+                       font=('Segoe UI', 11),
+                       borderwidth=0,
+                       focuscolor='none',
+                       padding=(20, 12))
+        
+        style.map('Secondary.TButton',
+                 background=[('active', '#5a5a5a'),
+                           ('pressed', '#404040')])
+        
+        style.configure('Success.TButton',
+                       background=self.colors['success'],
+                       foreground='white',
+                       font=('Segoe UI', 12, 'bold'),
+                       borderwidth=0,
+                       focuscolor='none',
+                       padding=(20, 12))
+        
+        style.configure('Warning.TButton',
+                       background=self.colors['warning'],
+                       foreground='white',
+                       font=('Segoe UI', 12, 'bold'),
+                       borderwidth=0,
+                       focuscolor='none',
+                       padding=(20, 12))
+        
+        # Progress bar
+        style.configure('Modern.Horizontal.TProgressbar',
+                       background=self.colors['primary'],
+                       troughcolor=self.colors['surface_light'],
+                       borderwidth=0,
+                       lightcolor=self.colors['primary'],
+                       darkcolor=self.colors['primary'])
 
     def center_window(self):
         """Center the window on screen"""
@@ -45,190 +162,322 @@ class TorrentToolkitGUI:
         y = (self.root.winfo_screenheight() // 2) - (height // 2)
         self.root.geometry(f"{width}x{height}+{x}+{y}")
 
-    def create_widgets(self):
-        """Create the main GUI widgets"""
-        # Main frame
-        main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
-
+    def create_modern_widgets(self):
+        """Create modern GUI widgets with card-based layout"""
+        # Main container
+        main_container = ttk.Frame(self.root, style='Modern.TFrame', padding="30")
+        main_container.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
         # Configure grid weights
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
-        main_frame.columnconfigure(0, weight=1)
-
-        # Title
-        title_label = ttk.Label(
-            main_frame, text="🔧 TorrentToolkit", font=("Arial", 18, "bold")
-        )
-        title_label.grid(row=0, column=0, pady=(0, 10))
-
-        subtitle_label = ttk.Label(
-            main_frame, text="qBittorrent Management Suite", font=("Arial", 10)
-        )
-        subtitle_label.grid(row=1, column=0, pady=(0, 20))
-
-        # Configuration status
-        self.status_frame = ttk.LabelFrame(
-            main_frame, text="Configuration Status", padding="10"
-        )
-        self.status_frame.grid(row=2, column=0, sticky=(tk.W, tk.E), pady=(0, 20))
-        self.status_frame.columnconfigure(0, weight=1)
-
-        self.config_status_label = ttk.Label(self.status_frame, text="")
-        self.config_status_label.grid(row=0, column=0)
-
-        # Buttons frame
-        buttons_frame = ttk.Frame(main_frame)
-        buttons_frame.grid(row=3, column=0, sticky=(tk.W, tk.E))
-        buttons_frame.columnconfigure(0, weight=1)
-
-        # Button style
-        button_style = {"width": 25, "padding": (10, 5)}
-
-        # Edit .env button
-        self.edit_env_btn = ttk.Button(
-            buttons_frame,
-            text="⚙️ Edit Configuration",
-            command=self.edit_env_config,
-            **button_style,
-        )
-        self.edit_env_btn.grid(row=0, column=0, pady=5, sticky=tk.EW)
-
-        # Add trackers button
-        self.add_trackers_btn = ttk.Button(
-            buttons_frame,
-            text="🔗 Add Popular Trackers",
-            command=self.run_add_trackers,
-            **button_style,
-        )
-        self.add_trackers_btn.grid(row=1, column=0, pady=5, sticky=tk.EW)
-
-        # Remove orphaned button
-        self.remove_orphaned_btn = ttk.Button(
-            buttons_frame,
-            text="🧹 Remove Orphaned Torrents",
-            command=self.run_remove_orphaned,
-            **button_style,
-        )
-        self.remove_orphaned_btn.grid(row=2, column=0, pady=5, sticky=tk.EW)
-
-        # Generate report button
-        self.generate_report_btn = ttk.Button(
-            buttons_frame,
-            text="📊 Generate HTML Report",
-            command=self.run_generate_report,
-            **button_style,
-        )
-        self.generate_report_btn.grid(row=3, column=0, pady=5, sticky=tk.EW)
-
-        # Progress bar
-        self.progress = ttk.Progressbar(main_frame, mode="indeterminate")
-        self.progress.grid(row=4, column=0, sticky=(tk.W, tk.E), pady=(20, 10))
-
-        # Status label
-        self.status_label = ttk.Label(main_frame, text="Ready", font=("Arial", 9))
-        self.status_label.grid(row=5, column=0)
-
-        # Update config status
+        main_container.columnconfigure(0, weight=1)
+        main_container.rowconfigure(2, weight=1)
+        
+        # Header section
+        self.create_header(main_container)
+        
+        # Status card
+        self.create_status_card(main_container)
+        
+        # Main content area
+        self.create_main_content(main_container)
+        
+        # Footer
+        self.create_footer(main_container)
+        
+        # Update initial status
         self.update_config_status()
 
+    def create_header(self, parent):
+        """Create modern header with title and subtitle"""
+        header_frame = ttk.Frame(parent, style='Modern.TFrame')
+        header_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 30))
+        header_frame.columnconfigure(0, weight=1)
+        
+        # Top row with title and GitHub link
+        top_row = ttk.Frame(header_frame, style='Modern.TFrame')
+        top_row.grid(row=0, column=0, sticky=(tk.W, tk.E))
+        top_row.columnconfigure(0, weight=1)
+        
+        # Title with icon (left side)
+        title_frame = ttk.Frame(top_row, style='Modern.TFrame')
+        title_frame.grid(row=0, column=0, sticky=tk.W)
+        
+        title_label = ttk.Label(title_frame, text="⚡ TorrentToolkit", style='Title.TLabel')
+        title_label.grid(row=0, column=0)
+        
+        # GitHub link (right side)
+        github_btn = ttk.Button(top_row, 
+                               text="📁 GitHub", 
+                               command=self.open_github,
+                               style='Secondary.TButton')
+        github_btn.grid(row=0, column=1, sticky=tk.E)
+        
+        subtitle_label = ttk.Label(header_frame, 
+                                 text="Modern qBittorrent Management Suite", 
+                                 style='Subtitle.TLabel')
+        subtitle_label.grid(row=1, column=0, pady=(5, 0))
+
+    def create_status_card(self, parent):
+        """Create status card with configuration info"""
+        status_card = ttk.Frame(parent, style='Card.TFrame', padding="25")
+        status_card.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 25))
+        status_card.columnconfigure(1, weight=1)
+        
+        # Status header
+        status_header = ttk.Label(status_card, text="🔧 Configuration Status", style='Heading.TLabel')
+        status_header.grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 15))
+        
+        # Status content frame
+        status_content = ttk.Frame(status_card, style='Card.TFrame')
+        status_content.grid(row=1, column=0, columnspan=2, sticky=(tk.W, tk.E))
+        status_content.columnconfigure(1, weight=1)
+        
+        self.config_status_label = ttk.Label(status_content, text="", style='Status.TLabel')
+        self.config_status_label.grid(row=0, column=0, sticky=(tk.W, tk.E))
+        
+        # Quick config button
+        self.quick_config_btn = ttk.Button(status_content, 
+                                         text="⚙️ Configure", 
+                                         command=self.edit_env_config,
+                                         style='Secondary.TButton')
+        self.quick_config_btn.grid(row=0, column=1, sticky=tk.E, padx=(20, 0))
+
+    def create_main_content(self, parent):
+        """Create main content area with action cards"""
+        content_frame = ttk.Frame(parent, style='Modern.TFrame')
+        content_frame.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        content_frame.columnconfigure(0, weight=1)
+        content_frame.columnconfigure(1, weight=1)
+        content_frame.rowconfigure(0, weight=1)
+        
+        # Left column - Main actions
+        left_column = ttk.Frame(content_frame, style='Modern.TFrame')
+        left_column.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 15))
+        left_column.columnconfigure(0, weight=1)
+        
+        # Right column - Secondary actions
+        right_column = ttk.Frame(content_frame, style='Modern.TFrame')
+        right_column.grid(row=0, column=1, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(15, 0))
+        right_column.columnconfigure(0, weight=1)
+        
+        # Create action cards
+        self.create_action_cards(left_column, right_column)
+        
+        # Progress and status at bottom
+        self.create_progress_section(parent)
+
+    def create_action_cards(self, left_col, right_col):
+        """Create modern action cards"""
+        # Main actions (left column)
+        main_actions_card = ttk.Frame(left_col, style='Card.TFrame', padding="25")
+        main_actions_card.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N), pady=(0, 20))
+        main_actions_card.columnconfigure(0, weight=1)
+        
+        # Card header
+        ttk.Label(main_actions_card, text="🚀 Main Actions", style='Heading.TLabel').grid(
+            row=0, column=0, sticky=tk.W, pady=(0, 20))
+        
+        # Add Popular Trackers button
+        self.add_trackers_btn = ttk.Button(main_actions_card,
+                                         text="🔗 Add Popular Trackers",
+                                         command=self.run_add_trackers,
+                                         style='Primary.TButton')
+        self.add_trackers_btn.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 15))
+        
+        # Description
+        ttk.Label(main_actions_card, 
+                 text="Enhance your torrents with the best tracker lists",
+                 style='Status.TLabel').grid(row=2, column=0, sticky=tk.W, pady=(0, 25))
+        
+        # Remove Orphaned button
+        self.remove_orphaned_btn = ttk.Button(main_actions_card,
+                                            text="🧹 Clean Orphaned Files",
+                                            command=self.run_remove_orphaned,
+                                            style='Warning.TButton')
+        self.remove_orphaned_btn.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(0, 15))
+        
+        # Description
+        ttk.Label(main_actions_card, 
+                 text="Remove files no longer tracked by qBittorrent",
+                 style='Status.TLabel').grid(row=4, column=0, sticky=tk.W)
+        
+        # Secondary actions (right column)
+        secondary_actions_card = ttk.Frame(right_col, style='Card.TFrame', padding="25")
+        secondary_actions_card.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N), pady=(0, 20))
+        secondary_actions_card.columnconfigure(0, weight=1)
+        
+        # Card header
+        ttk.Label(secondary_actions_card, text="📊 Reports & Tools", style='Heading.TLabel').grid(
+            row=0, column=0, sticky=tk.W, pady=(0, 20))
+        
+        # Generate Report button
+        self.generate_report_btn = ttk.Button(secondary_actions_card,
+                                            text="� Generate Report",
+                                            command=self.run_generate_report,
+                                            style='Success.TButton')
+        self.generate_report_btn.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 15))
+        
+        # Description
+        ttk.Label(secondary_actions_card, 
+                 text="Create detailed HTML analytics report",
+                 style='Status.TLabel').grid(row=2, column=0, sticky=tk.W)
+
+    def create_progress_section(self, parent):
+        """Create progress bar and status section"""
+        progress_frame = ttk.Frame(parent, style='Modern.TFrame')
+        progress_frame.grid(row=3, column=0, sticky=(tk.W, tk.E), pady=(25, 0))
+        progress_frame.columnconfigure(0, weight=1)
+        
+        # Progress bar
+        self.progress = ttk.Progressbar(progress_frame, 
+                                      mode="indeterminate",
+                                      style='Modern.Horizontal.TProgressbar')
+        self.progress.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        # Status label
+        self.status_label = ttk.Label(progress_frame, text="Ready", style='Footer.TLabel')
+        self.status_label.grid(row=1, column=0)
+
+    def create_footer(self, parent):
+        """Create footer with app info"""
+        footer_frame = ttk.Frame(parent, style='Modern.TFrame')
+        footer_frame.grid(row=4, column=0, sticky=(tk.W, tk.E), pady=(20, 0))
+        footer_frame.columnconfigure(0, weight=1)
+        
+        footer_label = ttk.Label(footer_frame, 
+                               text="TorrentToolkit v1.0", 
+                               style='Footer.TLabel')
+        footer_label.grid(row=0, column=0)
+
     def update_config_status(self):
-        """Update the configuration status display"""
+        """Update the configuration status display with modern styling"""
         qb_url = os.getenv("QB_URL")
         qb_user = os.getenv("QB_USER", "admin")
         qb_pass = os.getenv("QB_PASS")
         completed_folder = os.getenv("COMPLETED_FOLDER")
 
-        status_text = f"URL: {qb_url or 'Not set'}\\n"
-        status_text += f"User: {qb_user or 'Not set'}\\n"
-        status_text += f"Password: {'***' if qb_pass else 'Not set'}\\n"
-        status_text += f"Completed Folder: {completed_folder or 'Not set'}"
-
+        # Create status indicators with emojis and colors
+        url_status = "🟢" if qb_url and qb_url != "http://localhost:8080" else "🟡"
+        pass_status = "🟢" if qb_pass else "🔴"
+        folder_status = "🟢" if completed_folder else "🔴"
+        
+        status_lines = [
+            f"{url_status} qBittorrent URL: {qb_url or 'Not configured'}",
+            f"👤 Username: {qb_user or 'Not set'}",
+            f"{pass_status} Password: {'Configured' if qb_pass else 'Not set'}",
+            f"{folder_status} Download Folder: {completed_folder or 'Not set'}"
+        ]
+        
+        status_text = "\n".join(status_lines)
         self.config_status_label.config(text=status_text)
 
-        # Enable/disable buttons based on config
-        config_valid = bool(qb_url)
-        state = tk.NORMAL if config_valid else tk.DISABLED
-
-        self.add_trackers_btn.config(state=state)
-        self.remove_orphaned_btn.config(
-            state=state if completed_folder else tk.DISABLED
-        )
-        self.generate_report_btn.config(state=state)
+        # Enable/disable buttons based on config with modern state management
+        config_valid = bool(qb_url and qb_url != "http://localhost:8080")
+        
+        # Update button states
+        if hasattr(self, 'add_trackers_btn'):
+            self.add_trackers_btn.config(state=tk.NORMAL if config_valid else tk.DISABLED)
+        if hasattr(self, 'remove_orphaned_btn'):
+            self.remove_orphaned_btn.config(
+                state=tk.NORMAL if (config_valid and completed_folder) else tk.DISABLED
+            )
+        if hasattr(self, 'generate_report_btn'):
+            self.generate_report_btn.config(state=tk.NORMAL if config_valid else tk.DISABLED)
 
     def edit_env_config(self):
-        """Open a dialog to edit environment variables"""
+        """Open a modern dialog to edit environment variables"""
         config_window = tk.Toplevel(self.root)
-        config_window.title("Edit Configuration")
-        config_window.geometry("400x300")
+        config_window.title("TorrentToolkit Configuration")
+        config_window.geometry("500x450")
         config_window.resizable(False, False)
+        config_window.configure(bg=self.colors['background'])
 
         # Center the config window
         config_window.transient(self.root)
         config_window.grab_set()
+        
+        # Center the window on screen
+        config_window.update_idletasks()
+        width = config_window.winfo_width()
+        height = config_window.winfo_height()
+        x = (config_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (config_window.winfo_screenheight() // 2) - (height // 2)
+        config_window.geometry(f"{width}x{height}+{x}+{y}")
 
-        # Main frame
-        main_frame = ttk.Frame(config_window, padding="20")
+        # Main frame with modern styling
+        main_frame = ttk.Frame(config_window, style='Modern.TFrame', padding="30")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
         config_window.columnconfigure(0, weight=1)
         config_window.rowconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
 
-        # Title
-        ttk.Label(
-            main_frame, text="Configuration Settings", font=("Arial", 12, "bold")
-        ).grid(row=0, column=0, columnspan=2, pady=(0, 15))
+        # Modern header
+        header_frame = ttk.Frame(main_frame, style='Modern.TFrame')
+        header_frame.grid(row=0, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 25))
+        header_frame.columnconfigure(0, weight=1)
+        
+        ttk.Label(header_frame, text="⚙️ Configuration Settings", style='Title.TLabel').grid(
+            row=0, column=0, pady=(0, 5))
+        
+        ttk.Label(header_frame, 
+                 text="Configure your qBittorrent connection and preferences", 
+                 style='Subtitle.TLabel').grid(row=1, column=0)
 
-        # Variables
+        # Variables with modern styling
         vars_data = [
-            (
-                "QB_URL",
-                "qBittorrent URL:",
-                os.getenv("QB_URL", "http://localhost:8080"),
-            ),
-            ("QB_USER", "Username:", os.getenv("QB_USER", "admin")),
-            ("QB_PASS", "Password:", os.getenv("QB_PASS", "")),
-            (
-                "COMPLETED_FOLDER",
-                "Completed Folder:",
-                os.getenv("COMPLETED_FOLDER", ""),
-            ),
+            ("QB_URL", "🌐 qBittorrent URL", os.getenv("QB_URL", "http://localhost:8080")),
+            ("QB_USER", "👤 Username", os.getenv("QB_USER", "admin")),
+            ("QB_PASS", "🔐 Password", os.getenv("QB_PASS", "")),
+            ("COMPLETED_FOLDER", "📁 Downloads Folder", os.getenv("COMPLETED_FOLDER", "")),
         ]
 
         self.config_vars = {}
 
+        # Create input fields with modern styling
         for i, (var_name, label, default_value) in enumerate(vars_data):
-            ttk.Label(main_frame, text=label).grid(
-                row=i + 1, column=0, sticky=tk.W, pady=2
-            )
+            row = i + 1
+            
+            # Label
+            label_widget = ttk.Label(main_frame, text=label, style='Heading.TLabel')
+            label_widget.grid(row=row, column=0, sticky=tk.W, pady=(15, 5), padx=(0, 20))
 
+            # Entry field
             if var_name == "QB_PASS":
-                entry = ttk.Entry(main_frame, show="*", width=30)
+                entry = ttk.Entry(main_frame, show="*", width=35, font=('Segoe UI', 12))
             else:
-                entry = ttk.Entry(main_frame, width=30)
+                entry = ttk.Entry(main_frame, width=35, font=('Segoe UI', 12))
 
-            entry.grid(row=i + 1, column=1, sticky=(tk.W, tk.E), pady=2, padx=(10, 0))
+            entry.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=(15, 5))
             entry.insert(0, default_value)
             self.config_vars[var_name] = entry
 
             # Browse button for folder selection
             if var_name == "COMPLETED_FOLDER":
-                browse_btn = ttk.Button(
-                    main_frame, text="Browse", command=lambda: self.browse_folder(entry)
-                )
-                browse_btn.grid(row=i + 1, column=2, padx=(5, 0))
+                browse_btn = ttk.Button(main_frame, 
+                                      text="📂", 
+                                      command=lambda: self.browse_folder(entry),
+                                      style='Secondary.TButton',
+                                      width=3)
+                browse_btn.grid(row=row, column=2, padx=(10, 0), pady=(15, 5))
 
-        # Buttons frame
-        buttons_frame = ttk.Frame(main_frame)
-        buttons_frame.grid(row=len(vars_data) + 2, column=0, columnspan=3, pady=(20, 0))
+        # Modern buttons frame
+        buttons_frame = ttk.Frame(main_frame, style='Modern.TFrame')
+        buttons_frame.grid(row=len(vars_data) + 2, column=0, columnspan=3, pady=(30, 0))
 
-        ttk.Button(
-            buttons_frame, text="Save", command=lambda: self.save_config(config_window)
-        ).pack(side=tk.LEFT, padx=5)
-        ttk.Button(buttons_frame, text="Cancel", command=config_window.destroy).pack(
-            side=tk.LEFT, padx=5
-        )
+        save_btn = ttk.Button(buttons_frame, 
+                            text="💾 Save Configuration", 
+                            command=lambda: self.save_config(config_window),
+                            style='Primary.TButton')
+        save_btn.pack(side=tk.LEFT, padx=(0, 15))
+        
+        cancel_btn = ttk.Button(buttons_frame, 
+                              text="❌ Cancel", 
+                              command=config_window.destroy,
+                              style='Secondary.TButton')
+        cancel_btn.pack(side=tk.LEFT)
 
     def browse_folder(self, entry_widget):
         """Open folder browser dialog"""
@@ -352,11 +601,12 @@ class TorrentToolkitGUI:
             self.set_status("Ready")
 
     def show_orphan_selection_dialog(self, data):
-        """Show dialog for selecting which orphaned torrents to delete"""
+        """Show modern dialog for selecting which orphaned torrents to delete"""
         dialog = tk.Toplevel(self.root)
-        dialog.title("Select Orphaned Torrents to Delete")
-        dialog.geometry("700x500")
+        dialog.title("Clean Orphaned Files - TorrentToolkit")
+        dialog.geometry("900x600")
         dialog.resizable(True, True)
+        dialog.configure(bg=self.colors['background'])
         dialog.transient(self.root)
         dialog.grab_set()
 
@@ -366,23 +616,43 @@ class TorrentToolkitGUI:
         y = (dialog.winfo_screenheight() // 2) - (dialog.winfo_reqheight() // 2)
         dialog.geometry(f"+{x}+{y}")
 
-        # Main frame
-        main_frame = ttk.Frame(dialog, padding="10")
+        # Main frame with modern styling
+        main_frame = ttk.Frame(dialog, style='Modern.TFrame', padding="25")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         dialog.columnconfigure(0, weight=1)
         dialog.rowconfigure(0, weight=1)
         main_frame.columnconfigure(0, weight=1)
-        main_frame.rowconfigure(1, weight=1)
+        main_frame.rowconfigure(2, weight=1)
 
-        # Title
-        title_label = ttk.Label(
-            main_frame, text="🗑️ Orphaned Torrents Found", font=("Arial", 14, "bold")
-        )
-        title_label.grid(row=0, column=0, pady=(0, 10))
+        # Modern header
+        header_frame = ttk.Frame(main_frame, style='Modern.TFrame')
+        header_frame.grid(row=0, column=0, sticky=(tk.W, tk.E), pady=(0, 20))
+        header_frame.columnconfigure(0, weight=1)
+        
+        ttk.Label(header_frame, text="🧹 Clean Orphaned Files", style='Title.TLabel').grid(
+            row=0, column=0, pady=(0, 5))
+        
+        ttk.Label(header_frame, 
+                 text="Select files to remove from your system", 
+                 style='Subtitle.TLabel').grid(row=1, column=0)
+
+        # Info card
+        info_card = ttk.Frame(main_frame, style='Card.TFrame', padding="15")
+        info_card.grid(row=1, column=0, sticky=(tk.W, tk.E), pady=(0, 20))
+        info_card.columnconfigure(1, weight=1)
+        
+        ttk.Label(info_card, text="ℹ️", style='Title.TLabel').grid(row=0, column=0, padx=(0, 15))
+        
+        info_text = ("Files shown below are no longer tracked by qBittorrent. "
+                    "ISO files are unchecked by default for safety. "
+                    "Double-click items to toggle selection.")
+        
+        ttk.Label(info_card, text=info_text, style='Status.TLabel', wraplength=700).grid(
+            row=0, column=1, sticky=(tk.W, tk.E))
 
         # Create treeview for file selection
-        tree_frame = ttk.Frame(main_frame)
-        tree_frame.grid(row=1, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        tree_frame = ttk.Frame(main_frame, style='Modern.TFrame')
+        tree_frame.grid(row=2, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         tree_frame.columnconfigure(0, weight=1)
         tree_frame.rowconfigure(0, weight=1)
 
@@ -484,12 +754,7 @@ class TorrentToolkitGUI:
         tree.bind("<Return>", toggle_checkbox)
         tree.bind("<space>", toggle_checkbox)
 
-        # Buttons frame
-        button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=2, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
-        button_frame.columnconfigure(1, weight=1)
-
-        # Select/Deselect all buttons
+        # Define selection functions
         def select_all():
             for item_id in checkbox_states:
                 if not checkbox_states[item_id]:
@@ -506,16 +771,21 @@ class TorrentToolkitGUI:
                     new_text = current_text.replace("☑", "☐")
                     tree.item(item_id, text=new_text, tags=("unchecked",))
 
-        ttk.Button(button_frame, text="Select All", command=select_all).grid(
-            row=0, column=0, padx=(0, 5)
-        )
-        ttk.Button(button_frame, text="Deselect All", command=deselect_all).grid(
-            row=0, column=1, padx=5
-        )
+        # Modern buttons frame
+        button_frame = ttk.Frame(main_frame, style='Modern.TFrame')
+        button_frame.grid(row=3, column=0, pady=(20, 0), sticky=(tk.W, tk.E))
+        button_frame.columnconfigure(2, weight=1)
 
-        # Action buttons
-        action_frame = ttk.Frame(main_frame)
-        action_frame.grid(row=3, column=0, pady=(10, 0))
+        # Select/Deselect all buttons with modern styling
+        ttk.Button(button_frame, text="✅ Select All", command=select_all, 
+                  style='Secondary.TButton').grid(row=0, column=0, padx=(0, 10))
+        
+        ttk.Button(button_frame, text="❌ Deselect All", command=deselect_all, 
+                  style='Secondary.TButton').grid(row=0, column=1, padx=(0, 20))
+
+        # Action buttons on the right
+        action_frame = ttk.Frame(button_frame, style='Modern.TFrame')
+        action_frame.grid(row=0, column=3, sticky=tk.E)
 
         def delete_selected():
             # Get selected files
@@ -550,22 +820,26 @@ class TorrentToolkitGUI:
             dialog.destroy()
             self.set_status("Ready")
 
-        ttk.Button(
-            action_frame,
-            text="Delete Selected",
-            command=delete_selected,
-            style="Accent.TButton",
-        ).pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Button(action_frame, text="Cancel", command=cancel).pack(side=tk.LEFT)
+        # Modern action buttons
+        ttk.Button(action_frame, text="🗑️ Delete Selected", command=delete_selected, 
+                  style='Warning.TButton').pack(side=tk.LEFT, padx=(0, 15))
+        
+        ttk.Button(action_frame, text="✖️ Cancel", command=cancel, 
+                  style='Secondary.TButton').pack(side=tk.LEFT)
 
-        # Summary label
-        summary_text = f"Found {len(data['orphans'])} orphaned files total"
+        # Modern summary section
+        summary_frame = ttk.Frame(main_frame, style='Modern.TFrame')
+        summary_frame.grid(row=4, column=0, pady=(20, 0))
+        
+        summary_text = f"📁 Found {len(data['orphans'])} orphaned files"
         if data["iso_orphans"]:
-            summary_text += f" ({len(data['iso_orphans'])} ISOs excluded by default)"
+            summary_text += f" • {len(data['iso_orphans'])} ISOs excluded by default"
 
-        ttk.Label(main_frame, text=summary_text, font=("Arial", 9)).grid(
-            row=4, column=0, pady=(10, 0)
-        )
+        ttk.Label(summary_frame, text=summary_text, style='Footer.TLabel').grid(row=0, column=0)
+
+    def open_github(self):
+        """Open the GitHub repository in the default browser"""
+        webbrowser.open("https://github.com/Owen-3456/TorrentToolkit")
 
     def get_file_size(self, file_path):
         """Get human-readable file size"""
