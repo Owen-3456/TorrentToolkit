@@ -30,12 +30,16 @@ def get_orphaned_torrents_data():
         )
 
         if login_response.status_code != 200:
-            return {"error": f"Failed to login to qBittorrent: {login_response.status_code}"}
+            return {
+                "error": f"Failed to login to qBittorrent: {login_response.status_code}"
+            }
 
         # Get list of torrents from qBittorrent
         torrents_response = s.get(f"{qb_url}/api/v2/torrents/info")
         if torrents_response.status_code != 200:
-            return {"error": f"Failed to get torrents from qBittorrent: {torrents_response.status_code}"}
+            return {
+                "error": f"Failed to get torrents from qBittorrent: {torrents_response.status_code}"
+            }
 
         torrents = torrents_response.json()
         torrent_files = {os.path.basename(t["content_path"]) for t in torrents}
@@ -92,7 +96,7 @@ def get_orphaned_torrents_data():
             "orphans": list(orphans),
             "iso_orphans": iso_orphans,
             "deletable_orphans": deletable_orphans,
-            "completed_folder": completed_folder
+            "completed_folder": completed_folder,
         }
 
     except Exception as e:
@@ -104,14 +108,14 @@ def delete_selected_files(files_to_delete, completed_folder):
     deleted_count = 0
     error_count = 0
     error_messages = []
-    
+
     for orphan, category in files_to_delete:
         try:
             if category == "root":
                 file_path = os.path.join(completed_folder, orphan)
             else:
                 file_path = os.path.join(completed_folder, category, orphan)
-            
+
             if os.path.exists(file_path):
                 if os.path.isdir(file_path):
                     shutil.rmtree(file_path)
@@ -121,15 +125,15 @@ def delete_selected_files(files_to_delete, completed_folder):
             else:
                 error_messages.append(f"File not found: {orphan}")
                 error_count += 1
-                
+
         except Exception as e:
             error_messages.append(f"Error deleting {orphan}: {e}")
             error_count += 1
-    
+
     return {
         "deleted_count": deleted_count,
         "error_count": error_count,
-        "error_messages": error_messages
+        "error_messages": error_messages,
     }
 
 
