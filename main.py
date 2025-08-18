@@ -11,6 +11,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import threading
 import webbrowser
+import shutil
 from dotenv import load_dotenv, set_key, find_dotenv
 
 # Import our toolkit modules
@@ -18,8 +19,7 @@ from add_popular_trackers import add_popular_trackers
 from remove_orphaned_torrents import get_orphaned_torrents_data, delete_selected_files
 from generate_report import generate_html_report
 
-# Load environment variables
-load_dotenv()
+# Environment variables will be loaded after .env file check
 
 
 class TorrentToolkitGUI:
@@ -248,6 +248,9 @@ class TorrentToolkitGUI:
                 value = entry.get().strip()
                 set_key(env_file, var_name, value)
                 os.environ[var_name] = value
+
+            # Reload environment variables to ensure they're up to date
+            load_dotenv(override=True)
 
             self.update_config_status()
             config_window.destroy()
@@ -652,10 +655,75 @@ class TorrentToolkitGUI:
         )
 
 
+def check_and_create_env_file():
+    """Check if .env file exists, create from .env.example if not, and prompt user to edit"""
+    env_path = ".env"
+    env_example_path = ".env.example"
+
+    # Check if .env file exists
+    if not os.path.exists(env_path):
+        # Check if .env.example exists
+        if os.path.exists(env_example_path):
+            try:
+                # Copy .env.example to .env
+                shutil.copy2(env_example_path, env_path)
+
+                # Show message to user
+                result = messagebox.askquestion(
+                    "Environment File Created",
+                    "A new .env configuration file has been created from .env.example.\n\n"
+                    "You need to configure your .env file before using the toolkit.\n\n"
+                    "Would you like to edit the configuration now?",
+                    icon="info",
+                )
+
+                return result == "yes"
+
+            except Exception as e:
+                messagebox.showerror(
+                    "Error",
+                    f"Failed to create .env file from .env.example:\n{e}\n\n"
+                    "Please create the .env file manually.",
+                )
+                return False
+        else:
+            messagebox.showerror(
+                "Missing Files",
+                "Neither .env nor .env.example file found.\n\n"
+                "Please ensure .env.example exists or create a .env file manually.",
+            )
+            return False
+
+    # .env file exists, check if it's properly configured
+    load_dotenv()
+    qb_url = os.getenv("QB_URL")
+
+    if not qb_url or qb_url == "http://localhost:8080":
+        result = messagebox.askquestion(
+            "Configuration Check",
+            "Your .env file may need configuration updates.\n\n"
+            "Would you like to review your settings?",
+            icon="question",
+        )
+        return result == "yes"
+
+    return False
+
+
 def main():
     """Main entry point for the GUI"""
+    # Check and handle .env file before creating GUI
+    should_edit_config = check_and_create_env_file()
+
+    # Now load environment variables
+    load_dotenv()
+
     root = tk.Tk()
     app = TorrentToolkitGUI(root)
+
+    # If we need to edit config, show the dialog after GUI is ready
+    if should_edit_config:
+        root.after(100, app.edit_env_config)  # Small delay to ensure GUI is ready
 
     # Handle window close
     def on_closing():

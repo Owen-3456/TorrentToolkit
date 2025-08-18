@@ -6,21 +6,23 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Settings
-qb_url = os.getenv("QB_URL")
-qb_user = os.getenv("QB_USER", "admin")
-qb_pass = os.getenv("QB_PASS", "admin")
-completed_folder = os.getenv("COMPLETED_FOLDER")
-
-# Validate required environment variables
-if not qb_url:
-    raise ValueError("QB_URL environment variable is required")
-if not completed_folder:
-    raise ValueError("COMPLETED_FOLDER environment variable is required")
+# Note: Environment variables are validated when functions are called, not at import time
 
 
 def get_orphaned_torrents_data():
     """Get orphaned torrent files data without console interaction - for GUI use"""
+    # Get settings from environment
+    qb_url = os.getenv("QB_URL")
+    qb_user = os.getenv("QB_USER", "admin")
+    qb_pass = os.getenv("QB_PASS", "admin")
+    completed_folder = os.getenv("COMPLETED_FOLDER")
+
+    # Validate required environment variables
+    if not qb_url:
+        return {"error": "QB_URL environment variable is required"}
+    if not completed_folder:
+        return {"error": "COMPLETED_FOLDER environment variable is required"}
+
     try:
         # Login to qBittorrent Web API
         s = requests.Session()
@@ -139,6 +141,20 @@ def delete_selected_files(files_to_delete, completed_folder):
 
 def remove_orphaned_torrents():
     """Remove orphaned torrent files that are no longer in qBittorrent"""
+    # Get settings from environment
+    qb_url = os.getenv("QB_URL")
+    qb_user = os.getenv("QB_USER", "admin")
+    qb_pass = os.getenv("QB_PASS", "admin")
+    completed_folder = os.getenv("COMPLETED_FOLDER")
+
+    # Validate required environment variables
+    if not qb_url:
+        print("❌ QB_URL environment variable is required")
+        return False
+    if not completed_folder:
+        print("❌ COMPLETED_FOLDER environment variable is required")
+        return False
+
     try:
         # Login to qBittorrent Web API
         s = requests.Session()
