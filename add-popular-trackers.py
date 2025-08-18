@@ -1,9 +1,13 @@
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # CONFIGURATION - Update these values with your own
-QB_HOST = "http://192.168.1.1:8080"
-USERNAME = "admin"
-PASSWORD = "admin"
+QB_HOST = os.getenv("QB_URL", "http://localhost:8080")
+USERNAME = os.getenv("QB_USER", "admin")
+PASSWORD = os.getenv("QB_PASS", "admin")
 
 # Best trackers list, updated regularly
 # Alternatively, you can put your own list of trackers here
