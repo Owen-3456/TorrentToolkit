@@ -1,3 +1,4 @@
+import os
 import requests
 from dotenv import load_dotenv
 
@@ -48,7 +49,8 @@ def edit_trackers(session, hash, torrent_name, new_trackers):
         print(f"ℹ️ No new trackers needed for {torrent_name}")
 
 
-def main():
+def add_popular_trackers():
+    """Add popular trackers to all public torrents in qBittorrent"""
     trackers_to_add = []
     try:
         response = requests.get(TRACKERS_URL)
@@ -58,19 +60,29 @@ def main():
         ]
         if not trackers_to_add:
             print("⚠️ Fetched tracker list is empty. No trackers will be added.")
-            return
+            return False
         print(f"ℹ️ Successfully fetched {len(trackers_to_add)} trackers.")
     except requests.exceptions.RequestException as e:
         print(f"❌ Error fetching trackers: {e}")
         print("ℹ️ Proceeding without adding new trackers.")
-        return  # Or, optionally, proceed with an empty list or a default list
+        return False  # Or, optionally, proceed with an empty list or a default list
 
-    with requests.Session() as s:
-        login(s)
-        torrents = get_torrents(s)
-        for torrent in torrents:
-            if not torrent.get("private"):  # Only edit public torrents
-                edit_trackers(s, torrent["hash"], torrent["name"], trackers_to_add)
+    try:
+        with requests.Session() as s:
+            login(s)
+            torrents = get_torrents(s)
+            for torrent in torrents:
+                if not torrent.get("private"):  # Only edit public torrents
+                    edit_trackers(s, torrent["hash"], torrent["name"], trackers_to_add)
+        return True
+    except Exception as e:
+        print(f"❌ Error adding trackers: {e}")
+        return False
 
 
-main()
+def main():
+    add_popular_trackers()
+
+
+if __name__ == "__main__":
+    main()
